@@ -1,30 +1,37 @@
 package ta
 
+import (
+	"log"
+	"reflect"
+)
+
 type comp struct {
 	Base[bool]
 	constant bool
 	c        float64
 }
 
-func Comp(op func(float64, float64) bool, src Series[float64], v interface{}) Series[bool] {
+func Comp(op func(float64, float64) bool, src Series[float64], val any) Series[bool] {
 	var s comp
 	var d []bool
 
-	switch v := v.(type) {
+	switch v := val.(type) {
 	case int:
 		d = make([]bool, 0, len(src.Data()))
+		val := float64(v)
 		for _, vv := range src.Data() {
-			d = append(d, op(vv, float64(v)))
+			d = append(d, op(vv, val))
 		}
 	case float64:
 		d = make([]bool, 0, len(src.Data()))
 		for _, vv := range src.Data() {
-			d = append(d, op(vv, float64(v)))
+			d = append(d, op(vv, v))
 		}
 	case *CONSTANT:
 		d = make([]bool, 0, len(src.Data()))
+		val := v.V(0)
 		for _, vv := range src.Data() {
-			d = append(d, op(vv, v.V(0)))
+			d = append(d, op(vv, val))
 		}
 	case Series[float64]:
 		var f, f1 []float64 = src.Data(), v.Data()
@@ -38,7 +45,7 @@ func Comp(op func(float64, float64) bool, src Series[float64], v interface{}) Se
 			d = append(d, op(f[i], f1[i]))
 		}
 	default:
-		panic("Comparison, not valid type")
+		log.Fatal("Comparison, not valid type ", reflect.TypeOf(v))
 	}
 	s.data = d
 	return &s

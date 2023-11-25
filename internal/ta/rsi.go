@@ -4,6 +4,7 @@ import "log"
 
 type RSI struct {
 	Base[float64]
+	Gain, Loss float64
 }
 
 func Rsi(src Series[float64], l int) *RSI {
@@ -27,8 +28,8 @@ func Rsi(src Series[float64], l int) *RSI {
 		r.data = append(r.data, 100-(100/(1+avgGain/avgLoss)))
 	}
 
-	//r.Gain = avgGain //Used for live
-	//r.Loss = avgLoss //Used for live calculating
+	r.Gain = avgGain //Used for live
+	r.Loss = avgLoss //Used for live calculating
 	return r
 }
 
